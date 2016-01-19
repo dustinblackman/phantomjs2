@@ -10,6 +10,7 @@ var requestProgress = require('request-progress')
 var progress = require('progress')
 var AdmZip = require('adm-zip')
 var cp = require('child_process')
+var execSync = require('child_process').execSync
 var fs = require('fs-extra')
 var glob = require('glob')
 var helper = require('./lib/phantomjs')
@@ -356,10 +357,16 @@ function getDownloadUrl() {
 
   downloadUrl = cdnUrl + '/phantomjs-' + helper.version + '-'
 
-  if (process.platform === 'linux' && process.arch === 'x64') {
-    downloadUrl += 'linux-x86_64.tar.bz2'
-  } else if (process.platform === 'linux' && process.arch == 'ia32') {
-    downloadUrl += 'linux-i686.tar.bz2'
+  if (fs.existsSync('/usr/bin/lsb_release')) {
+    var ubuntuVersion = execSync("lsb_release -d | awk -F'\t' '{print $2}'")
+    if (ubuntuVersion.indexOf('Ubuntu 14') >= 0) {
+      downloadUrl = 'https://github.com/laughingMan/phantomjs2.0/releases/download/2.0.0-20150731/phantomjs-2.0.0-20150731-u1404-x86_64.zip'
+    } else if  (ubuntuVersion.indexOf('Ubuntu 15') >= 0) {
+      downloadUrl = 'https://github.com/laughingMan/phantomjs2.0/releases/download/2.0.0-20150731/phantomjs-2.0.0-20150731-u1504-x86_64.zip'
+    } else {
+      downloadUrl = null
+    }
+
   } else if (process.platform === 'darwin' || process.platform === 'openbsd' || process.platform === 'freebsd') {
     downloadUrl += 'macosx.zip'
 
