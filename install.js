@@ -88,6 +88,17 @@ kew.resolve(true)
       throw err
     }
 
+    // Fixes OSX binary
+    if (process.platform === 'darwin') {
+      if (execSync('which upx').indexOf('not found') > -1) {
+        console.log('Installing upx with Brew')
+        execSync('brew install upx')
+      }
+      console.log('Unpacking binary with upx')
+      execSync('upx -d ' + location)
+    }
+
+
     var relativeLocation = path.relative(libPath, location)
     writeLocationFile(relativeLocation)
 
